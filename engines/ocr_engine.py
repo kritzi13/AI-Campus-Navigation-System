@@ -1,13 +1,15 @@
 import cv2
 import easyocr
 import numpy as np
+from utils.image_utils import resize_for_ocr
 
 def preprocess_image(image_path):
   image = cv2.imread(image_path) # image ko load karto hai 
-  gray = cv2.cvtColor(image, cv2.COLOR_BAYER_BG2GRAY) # gray scale me convert kar diya
+  gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) # gray scale me convert kar diya
   gray = cv2.equalizeHist(gray) # contrast bda diya jishe dark hallway mein joh photos hongi use bhi detect ache se kar paye
   denoised = cv2.fastNlMeansDenoising(gray, h=30) # remove noise and grains
-  return denoised
+  resized = resize_for_ocr(denoised)
+  return resized
 
 class OCREngine:
   def __init__(self):
@@ -21,8 +23,8 @@ class OCREngine:
 
     detections = []
     for (bbox, text, confidence) in results:
-      if confidence > 0.3:
-        detections.sppend({
+      if confidence > 0.2:
+        detections.append({
           "text": text,
           "confidence": round(confidence, 2),
           "bbox" : bbox
