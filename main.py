@@ -1,10 +1,22 @@
 from engines.ocr_engine import OCREngine
+from engines.object_detector import ObjectDetector
 
-engine = OCREngine()
-result = engine.process("test_images\sign_board.jpeg")
+# Load both engines once
+ocr = OCREngine()
+detector = ObjectDetector()
 
-print("Text found:", result["raw_text"])
-print("Total detections:", result["count"])
-print("\nDetailed results:")
-for detection in result["detections"]:
-  print(f" -> {detection['text']} confidence: {detection['confidence']}")
+image_path = "test_images/sign_board.jpeg"
+
+# Run both
+ocr_result = ocr.process(image_path)
+yolo_result = detector.process(image_path)
+
+print("=== OCR RESULTS ===")
+print("Text found:", ocr_result["raw_text"])
+print("Total detections:", ocr_result["count"])
+
+print("\n=== YOLO RESULTS ===")
+print("Objects found:", yolo_result["summary"])
+print("Total objects:", yolo_result["count"])
+for obj in yolo_result["detections"]:
+    print(f"  → {obj['label']} (confidence: {obj['confidence']})")
